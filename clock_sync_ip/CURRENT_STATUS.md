@@ -8,4 +8,4 @@ CDC status:             pending first report_cdc run
 Timing status:          pending first OOC run
 Open blockers:          see OPEN_ISSUES.md (OI-002 Vitis absent, OI-004 no board attached — both gate later milestones only; OI-006 ncurses shim resolved out-of-repo)
 Next action:            complete xsim regression (running), then OOC synth + report_cdc bundle, then docs/milestones/M1_CDC_FOUNDATION_REPORT.md
-Repository:             consolidated into IP_dev monorepo under clocking/clock_sync_ip (local main + github.com/koppula-Peter/IP_dev.git); sources recovered from divergent-backup snapshot after realignment loss — see docs/audit/REPOSITORY_AUDIT.md §9
+Repository:             standalone project at /home/peter/Desktop/clock_sync_ip, remote github.com/koppula-Peter/clock_sync_ip (private); extracted from IP_dev monorepo with full history 2026-08-25 — see docs/audit/REPOSITORY_AUDIT.md §9

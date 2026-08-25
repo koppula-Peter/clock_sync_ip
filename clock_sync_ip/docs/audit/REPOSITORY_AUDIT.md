@@ -162,22 +162,31 @@ each with spec → RTL → self-checking TB → randomized async-clock tests →
 assertions/formal → Vivado synthesis → `report_cdc`/timing review →
 documentation → qualification report.
 
-## 9. Consolidation record (2026-08-25, post-audit)
+## 9. Provenance & repository-lineage record
 
-The suite was originally developed in a standalone directory that was **not**
-under version control. On 2026-08-25 it was consolidated into the `IP_dev`
-monorepo:
+* 2026-08-25 (audit time): suite developed in a standalone directory, **not**
+  under version control.
+* 2026-08-25 (consolidation): imported into the `IP_dev` monorepo under
+  `IP_dev/clocking/clock_sync_ip/`; sources recovered from workspace snapshot
+  branch `divergent-backup` after a repo realignment dropped them from the
+  working tree.
+* 2026-08-25 (extraction, current home): moved back out to a dedicated
+  standalone repository to isolate it from monorepo churn:
 
-* Canonical location: `IP_dev/clocking/clock_sync_ip/` (local `main`, pushed to
-  `github.com/koppula-Peter/IP_dev.git`).
-* Sources recovered from workspace snapshot branch `divergent-backup`
-  (commit `0761 0837`) after a repo realignment dropped them from the working
-  tree; only stale xsim build artifacts survived locally.
+```text
+local : /home/peter/Desktop/clock_sync_ip            (branch main)
+remote: github.com/koppula-Peter/clock_sync_ip       (private)
+lineage: git subtree split of IP_dev main prefix clocking/
+         IP_dev@c9a753c7 -> clock_sync_ip@a18ad2b1
+         full per-commit file history preserved; removal commit
+         IP_dev@3ddad5f1 records the handoff on the monorepo side
+```
+
 * Non-project files that had been parked alongside the IP (`clocking/ncurses5/`,
-  `clocking/xilinx_env.sh`) were intentionally NOT carried into the repository.
-  `scripts/run_xsim_regression.sh` now bootstraps the environment itself: it
-  sources Vivado `settings64.sh` from `$XILINX_TOOLS` or well-known locations.
-  NOTE: xsim requires the `libncurses.so.5` soname which this OS does not ship;
-  a compat-shim directory of symlinks to the system ncurses6 is maintained
+  `clocking/xilinx_env.sh`) were intentionally NOT carried into this repository.
+  `scripts/run_xsim_regression.sh` bootstraps the environment itself: it sources
+  Vivado `settings64.sh` from `$XILINX_TOOLS` or well-known locations. NOTE:
+  xsim requires the `libncurses.so.5` soname which this OS does not ship; a
+  compat-shim directory of symlinks to the system ncurses6 is maintained
   OUTSIDE the repo at `/home/peter/Desktop/xilinx_tools/ncurses5/` and picked up
   automatically (tracked as OI-006).
