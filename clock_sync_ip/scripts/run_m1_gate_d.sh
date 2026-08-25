@@ -20,8 +20,12 @@ log "no active sim processes — proceeding"
 
 # --- 2: ensure regression results exist -------------------------------------
 NEED=0
-for tb in tb_rst_sync tb_cdc_level_sync tb_cdc_pulse_sync tb_cdc_handshake tb_cdc_gray_sync; do
-  [ -f "$ROOT/build/sim/xsim/$tb/xsim_s3.log" ] || NEED=1
+for tb in tb_rst_sync tb_cdc_level_sync tb_cdc_pulse_sync tb_cdc_handshake \
+          tb_cdc_gray_sync tb_clk_divider tb_gf_mux; do
+  if ! { [ -f "$ROOT/build/sim/xsim/$tb/xsim_s3.log" ] && \
+         grep -q "TEST PASSED\\|TEST FAILED" "$ROOT/build/sim/xsim/$tb/xsim_s3.log"; }; then
+    NEED=1
+  fi
 done
 if [ "$NEED" = "1" ]; then
   log "running missing regression pieces"

@@ -47,11 +47,24 @@ declare -A TB_TOP=(
   [tb_cdc_pulse_sync]="$ROOT/tb/cdc/tb_cdc_pulse_sync.sv"
   [tb_cdc_handshake]="$ROOT/tb/cdc/tb_cdc_handshake.sv"
   [tb_cdc_gray_sync]="$ROOT/tb/cdc/tb_cdc_gray_sync.sv"
+  [tb_clk_divider]="$ROOT/tb/clock_divider/tb_clk_divider.sv"
+  [tb_gf_mux]="$ROOT/tb/clock_mux/tb_gf_mux.sv"
+)
+
+# RTL needed per TB group
+RTL_CDC="$ROOT/rtl/cdc/reset/rst_sync.sv $ROOT/rtl/cdc/level/cdc_level_sync.sv $ROOT/rtl/cdc/pulse/cdc_pulse_sync.sv $ROOT/rtl/cdc/handshake/cdc_handshake.sv $ROOT/rtl/cdc/gray/cdc_gray_sync.sv"
+RTL_DIV="$ROOT/rtl/clock_divider/clk_divider.sv"
+RTL_MUX="$ROOT/rtl/clock_mux/gf_mux_seq.sv"
+
+declare -A TB_RTL=(
+  [tb_rst_sync]="$RTL_CDC" [tb_cdc_level_sync]="$RTL_CDC" [tb_cdc_pulse_sync]="$RTL_CDC"
+  [tb_cdc_handshake]="$RTL_CDC" [tb_cdc_gray_sync]="$RTL_CDC"
+  [tb_clk_divider]="$RTL_DIV" [tb_gf_mux]="$RTL_MUX"
 )
 
 TBS=("$@")
 if [ ${#TBS[@]} -eq 0 ]; then
-  TBS=(tb_rst_sync tb_cdc_level_sync tb_cdc_pulse_sync tb_cdc_handshake tb_cdc_gray_sync)
+  TBS=(tb_rst_sync tb_cdc_level_sync tb_cdc_pulse_sync tb_cdc_handshake tb_cdc_gray_sync tb_clk_divider tb_gf_mux)
 fi
 
 mkdir -p "$OUTBASE"
@@ -65,9 +78,21 @@ for tb in "${TBS[@]}"; do
   dir="$OUTBASE/$tb"
   mkdir -p "$dir"
   echo "=== $tb ==="
+
+  # incremental: skip TBs with complete results unless FORCE=1
+  if [ "${FORCE:-0}" != "1" ] && [ -f "$dir/xsim_s3.log" ] \
+     && grep -q "TEST PASSED\|TEST FAILED" "$dir/xsim_s3.log"; then
+    echo "  cached result present ($(grep -o 'tests=[0-9]* errors=[0-9]*' "$dir/xsim_s3.log" | tail -1)) — FORCE=1 to rerun"
+    continue
+  fi
+
+  # util pkg only used by CDC TBs; harmless elsewhere but keep include tight
+  UTIL=""
+  case "$tb" in tb_rst_sync|tb_cdc_*) UTIL="$ROOT/tb/cdc/tb_util_pkg.sv";; esac
+
   pushd "$dir" > /dev/null
 
-  if ! xvlog -sv -i "$ROOT/rtl/common" "$ROOT/tb/cdc/tb_util_pkg.sv" "$PKG" $RTL "${TB_TOP[$tb]}" > xvlog.log 2>&1; then
+  if ! xvlog -sv -i "$ROOT/rtl/common" $UTIL "$PKG" ${TB_RTL[$tb]} "${TB_TOP[$tb]}" > xvlog.log 2>&1; then
     echo "  XVLOG FAILED (xvlog.log)"; grep -m5 "ERROR" xvlog.log; PASS_ALL=0; popd > /dev/null; continue
   fi
   if ! xelab $XELAB_FLAGS -s snap "$tb" > xelab.log 2>&1; then
