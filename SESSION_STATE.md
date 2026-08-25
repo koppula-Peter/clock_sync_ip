@@ -5,9 +5,21 @@
 
 ## Where the project is
 
-Milestone M1 (CDC Foundation) — Gate C complete (RTL+TBs authored, lint clean),
-Gate D executing (unit regression). Standalone repo since 2026-08-25 evening;
-history extracted from IP_dev monorepo via subtree split (audit §9).
+M1 (CDC Foundation): Gate C done; Gate D executing — xsim regression detached
+(log /tmp/opencode/m1_regression.log, auto-chained to OOC synth via
+scripts/run_m1_gate_d.sh, PID may be re-found with pgrep -f run_m1_gate_d).
+CRITICAL HOST ISSUE: swap 100% full (7/7GB, 8.4GB swapped out) from parallel
+agent sessions -> xelab runs ~5% speed. Sims WILL finish eventually; do not
+kill them without checking RSS/swap first. Consider asking the user to close
+other agent sessions before heavy Vivado steps.
+
+M2 started early (authoring while M1 evidence collects):
+- DONE+lint-clean: rtl/clock_divider/clk_divider.sv + tb + spec doc
+  (CLK-DIV-REQ-*); rtl/clock_mux/gf_mux_seq.sv + xilinx_7series/
+  gf_mux_bufgctrl_7series.sv + clock_mux_generic_ref.sv + tb_gf_mux
+  (CLK-GFMUX-REQ-*); requirements appended to REQUIREMENTS.md.
+- NEXT after regression/synth land: add tb_clk_divider + tb_gf_mux to
+  run_xsim_regression.sh list; run them; then write M2_CLOCK_CONTROL_REPORT.md.
 
 ## Executing right now / last known run
 
