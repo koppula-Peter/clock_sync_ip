@@ -65,3 +65,31 @@ Result → Evidence (`docs/verification/TRACEABILITY_MATRIX.md`).
 | CDC-CMN-REQ-002 | Parameter validation via elaboration-time checks ($fatal in SV / guarded generate). |
 | CDC-CMN-REQ-003 | Each module has self-checking SV testbench incl. randomized independent clocks (mandate §32 list) and SVA assertions. |
 | CDC-CMN-REQ-004 | Each module synthesizes clean OOC in Vivado 2025.2; report_cdc shows SAFE classification for every crossing; methodology/CDC criticals = 0 unexplained. |
+
+## CLK-DIV — Clock Divider (M2)
+
+| ID | Requirement |
+|---|---|
+| CLK-DIV-REQ-001 | Shall divide an input reference by any integer in [DIVIDE_MIN..DIVIDE_MAX], producing one-clk-cycle enable ticks at 1/DIVIDE rate (Mode A, preferred per AD-003). |
+| CLK-DIV-REQ-002 | Divide-by-1 shall bypass counting and assert the tick every cycle. |
+| CLK-DIV-REQ-003 | Runtime divide changes shall take effect only at a deterministic boundary (terminal count) when GLITCH_FREE_UPDATE=1; no tick interval shorter than one clk cycle or longer than 2×DIVIDE cycles during transition. |
+| CLK-DIV-REQ-004 | Synchronous clear/restart shall reload the counter deterministically on the next clk edge. |
+| CLK-DIV-REQ-005 | Active divide value shall be readable (status) and pending-update state visible. |
+| CLK-DIV-REQ-006 | Values outside [DIVIDE_MIN..DIVIDE_MAX] shall be rejected at elaboration; live writes outside range while in reset-free operation shall be ignored with sticky config_err flag. |
+| CLK-DIV-REQ-007 | The module shall NOT emit a fabric clock signal; actual clock-output mode is delegated to the Layer-2 backend (BUFGCE_DIV class), which consumes the enable/tick interface. |
+
+## CLK-GFMUX — Glitch-Free Clock Mux (M2)
+
+| ID | Requirement |
+|---|---|
+| CLK-GFMUX-REQ-001 | Production source selection shall use BUFGCTRL-class primitives (Layer-2); no combinational clock muxing (AD-004). |
+| CLK-GFMUX-REQ-002 | Switch sequencing shall guarantee: no runt pulses, no double pulses, no output glitches, with documented maximum switch latency in cycles of the OUTPUT clock domain. |
+| CLK-GFMUX-REQ-003 | Behaviour defined and tested for: select change near either clock edge, stopped currently-selected source, stopped incoming source, rapid select toggling, reset during switch. |
+| CLK-GFMUX-REQ-004 | A safety override shall force the output off (both enables low) on health-manager request; software cannot re-enable without explicit release. |
+| CLK-GFMUX-REQ-005 | Layer-1 sequencer shall be portable/testable with behavioural clock models; Layer-2 wrapper maps CE0/CE1/S0/S1 onto BUFGCTRL with force-fail-safe wiring. |
+
+## CLK-MUXREF — Generic Mux Reference Model
+
+| ID | Requirement |
+|---|---|
+| CLK-MUXREF-REQ-001 | A combinational `assign` mux exists solely as simulation/education reference (`clock_mux_generic_ref`), marked non-synthesizable-for-clocks; any synthesis attempt in a clock path must trigger a methodology error via attribute/comment contract. |
