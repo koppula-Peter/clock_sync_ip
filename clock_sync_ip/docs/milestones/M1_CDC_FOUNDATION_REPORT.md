@@ -68,3 +68,12 @@ closure.
 * Handshake throughput limited to one word per 4-phase round trip.
 * Gray synchronizer samples may skip source values at extreme ratios.
 * No formal proofs yet; simulation + structural review only at this point.
+
+---
+### Session-log addendum (2026-08-25 late)
+
+* Unit regression restarted multiple times under severe host contention
+  (parallel agent sessions; swap 100% full). xelab progresses at ~5% normal
+  speed. Runs are fully detached; evidence lands in build/sim/xsim/.
+* Host-load mitigation tooling added: scripts/wait_and_regression.sh,
+  scripts/run_m1_gate_d.sh (auto-chains regression -> OOC synth).
