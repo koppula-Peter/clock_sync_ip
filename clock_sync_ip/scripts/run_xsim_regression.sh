@@ -9,8 +9,34 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUTBASE="$ROOT/build/sim/xsim"
 SEEDS_DEFAULT="1 2 3"
 
-source "$ROOT/../xilinx_env.sh" 2>/dev/null || true
+# --- tool environment -------------------------------------------------------
+# Prefer an already-configured PATH. Otherwise locate Vivado settings64.sh via
+# $XILINX_TOOLS or common install locations. xsim additionally needs the
+# libncurses.so.5 soname; if only ncurses6 exists, a compat-shim directory
+# (kept OUTSIDE this repository, e.g. <tools_root>/ncurses5/) must provide it.
+NCURSES_SHIM_DIRS=""
+if ! command -v xvlog >/dev/null 2>&1; then
+  CANDS="${XILINX_TOOLS:-}/Vivado/settings64.sh"
+  for v in 2025.2 2025.1 2024.2; do
+    CANDS="$CANDS $HOME/Desktop/xilinx_tools/$v/Vivado/settings64.sh /tools/Xilinx/$v/Vivado/settings64.sh /opt/Xilinx/$v/Vivado/settings64.sh"
+  done
+  for s in $CANDS; do
+    [ -f "$s" ] || continue
+    # shellcheck disable=SC1090
+    source "$s"
+    TOOLS_ROOT="$(dirname "$(dirname "$(dirname "$s")")")"   # .../xilinx_tools
+    [ -d "$TOOLS_ROOT/ncurses5" ] && NCURSES_SHIM_DIRS="$TOOLS_ROOT/ncurses5"
+    break
+  done
+fi
+if [ -n "$NCURSES_SHIM_DIRS" ]; then
+  case ":${LD_LIBRARY_PATH:-}:" in
+    *":$NCURSES_SHIM_DIRS:"*) ;;
+    *) export LD_LIBRARY_PATH="$NCURSES_SHIM_DIRS:${LD_LIBRARY_PATH:-}" ;;
+  esac
+fi
 command -v xvlog >/dev/null 2>&1 || { echo "ERROR: xvlog not in PATH"; exit 2; }
+command -v xsim  >/dev/null 2>&1 || { echo "ERROR: xsim not in PATH (libncurses.so.5 shim missing? see header comment)"; exit 2; }
 
 PKG="$ROOT/rtl/common/clk_sync_cdc_pkg.sv"
 RTL="$ROOT/rtl/cdc/reset/rst_sync.sv $ROOT/rtl/cdc/level/cdc_level_sync.sv $ROOT/rtl/cdc/pulse/cdc_pulse_sync.sv $ROOT/rtl/cdc/handshake/cdc_handshake.sv $ROOT/rtl/cdc/gray/cdc_gray_sync.sv"

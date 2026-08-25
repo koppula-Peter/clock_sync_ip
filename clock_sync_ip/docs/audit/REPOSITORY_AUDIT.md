@@ -175,6 +175,9 @@ monorepo:
   tree; only stale xsim build artifacts survived locally.
 * Non-project files that had been parked alongside the IP (`clocking/ncurses5/`,
   `clocking/xilinx_env.sh`) were intentionally NOT carried into the repository.
-  Tool environment is provided by sourcing
-  `/home/peter/Desktop/xilinx_tools/2025.2/Vivado/settings64.sh` directly; the
-  regression script tolerates both (PATH preset or explicit source).
+  `scripts/run_xsim_regression.sh` now bootstraps the environment itself: it
+  sources Vivado `settings64.sh` from `$XILINX_TOOLS` or well-known locations.
+  NOTE: xsim requires the `libncurses.so.5` soname which this OS does not ship;
+  a compat-shim directory of symlinks to the system ncurses6 is maintained
+  OUTSIDE the repo at `/home/peter/Desktop/xilinx_tools/ncurses5/` and picked up
+  automatically (tracked as OI-006).

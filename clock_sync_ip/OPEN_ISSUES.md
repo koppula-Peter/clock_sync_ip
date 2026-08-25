@@ -51,3 +51,13 @@ Modules affected: cdc level/pulse/handshake/gray documentation.
 Risk: None (documentation-only).
 How to resolve: Provide per-integration MTBF estimate once placement/timing exists.
 Evidence required: Vivado report_timing on synchronizer paths from an integration build.
+
+## OI-006
+ID: OI-006
+Missing information: xsim 2025.2 links against `libncurses.so.5` / `libtinfo.so.5`; this workstation ships only ncurses6.
+Temporary assumption: A compat-shim directory of symlinks (so.5 -> system so.6) at `/home/peter/Desktop/xilinx_tools/ncurses5/` satisfies the loader; regression script auto-detects it next to the tool root.
+Why assumption is reasonable: ncurses6 is ABI-backwards-compatible for the terminal APIs xsim uses; empirically verified (`xsim -version` and unit regressions pass with the shim, fail without).
+Modules affected: simulation flow only (scripts/run_xsim_regression.sh); no RTL impact.
+Risk: Low; a future Vivado patch could hard-require real ncurses5.
+How to resolve: Install the distro `libncurses5` package when available, or vendor real ncurses5 libs into the tools root (kept out of this repository deliberately — machine support, not IP).
+Evidence required: passing xsim logs under build/sim/xsim/.
