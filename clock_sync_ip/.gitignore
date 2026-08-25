@@ -7,3 +7,6 @@ vivado/*/vivado*.jou
 vivado/*/vivado*.log
 *.str
 .Xil/
+
+# Vivado playback journals anywhere
+*.pb

@@ -5,7 +5,7 @@
 | Audit date | 2026-08-25 |
 | Auditor | Principal FPGA architect (automated first-pass, per mandate §1) |
 | Repository path | `/home/peter/Desktop/IP_dev/clocking` |
-| Git status | **Not a git repository** (no `.git`, no history, no remotes) |
+| Git status | Part of the `IP_dev` monorepo (`main`), remote `github.com/koppula-Peter/IP_dev.git`. At original audit time this directory was standalone and not under version control; consolidated into `IP_dev` 2026-08-25 (see §9). |
 | Project root created | `<repo>/clock_sync_ip/` |
 | Version | v0.0.0-audit (pre-M1) |
 
@@ -161,3 +161,20 @@ M1 CDC Foundation next (reset, level, pulse, handshake, gray synchronizers),
 each with spec → RTL → self-checking TB → randomized async-clock tests →
 assertions/formal → Vivado synthesis → `report_cdc`/timing review →
 documentation → qualification report.
+
+## 9. Consolidation record (2026-08-25, post-audit)
+
+The suite was originally developed in a standalone directory that was **not**
+under version control. On 2026-08-25 it was consolidated into the `IP_dev`
+monorepo:
+
+* Canonical location: `IP_dev/clocking/clock_sync_ip/` (local `main`, pushed to
+  `github.com/koppula-Peter/IP_dev.git`).
+* Sources recovered from workspace snapshot branch `divergent-backup`
+  (commit `0761 0837`) after a repo realignment dropped them from the working
+  tree; only stale xsim build artifacts survived locally.
+* Non-project files that had been parked alongside the IP (`clocking/ncurses5/`,
+  `clocking/xilinx_env.sh`) were intentionally NOT carried into the repository.
+  Tool environment is provided by sourcing
+  `/home/peter/Desktop/xilinx_tools/2025.2/Vivado/settings64.sh` directly; the
+  regression script tolerates both (PATH preset or explicit source).
