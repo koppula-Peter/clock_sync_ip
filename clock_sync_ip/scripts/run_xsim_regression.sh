@@ -57,6 +57,10 @@ fi
 mkdir -p "$OUTBASE"
 PASS_ALL=1
 
+# xelab flags may be overridden, e.g. XELAB_FLAGS="-O0 -debug typical" for
+# fast functional-only elaboration on heavily loaded machines.
+XELAB_FLAGS="${XELAB_FLAGS:--debug typical}"
+
 for tb in "${TBS[@]}"; do
   dir="$OUTBASE/$tb"
   mkdir -p "$dir"
@@ -66,7 +70,7 @@ for tb in "${TBS[@]}"; do
   if ! xvlog -sv -i "$ROOT/rtl/common" "$ROOT/tb/cdc/tb_util_pkg.sv" "$PKG" $RTL "${TB_TOP[$tb]}" > xvlog.log 2>&1; then
     echo "  XVLOG FAILED (xvlog.log)"; grep -m5 "ERROR" xvlog.log; PASS_ALL=0; popd > /dev/null; continue
   fi
-  if ! xelab -debug typical -s snap "$tb" > xelab.log 2>&1; then
+  if ! xelab $XELAB_FLAGS -s snap "$tb" > xelab.log 2>&1; then
     echo "  XELAB FAILED (xelab.log)"; grep -m5 -i "error" xelab.log; PASS_ALL=0; popd > /dev/null; continue
   fi
 
